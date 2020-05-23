@@ -1,0 +1,16 @@
+[package]
+name = "assimp"
+version = "1.0.0"
+
+[lib]
+name = "assimp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "assimp"
+path = "src/bin.rs"
+
+[dependencies]
+libc = "0.2.0"
+bitflags = "1.2.1"
+glui = { path = "../glui" }
