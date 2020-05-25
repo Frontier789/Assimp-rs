@@ -8,31 +8,31 @@ use super::mesh::aiMesh;
 
 #[repr(C)]
 pub struct aiNode {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiMaterial {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiAnimation {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiTexture {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiCamera {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiLight {
-    pub dummy: i32,
+    dummy: i32,
 }
 #[repr(C)]
 pub struct aiMetadata {
-    pub dummy: i32,
+    dummy: i32,
 }
 
 // -------------------------------------------------------------------------------

@@ -2,15 +2,12 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+use super::aiFace;
 use super::aiVector3D;
 use std::os::raw::c_uint;
 
 #[repr(C)]
 pub struct aiColor4D {
-    pub dummy: i32,
-}
-#[repr(C)]
-pub struct aiFace {
     pub dummy: i32,
 }
 #[repr(C)]
