@@ -14,3 +14,7 @@ path = "src/bin.rs"
 libc = "0.2.0"
 bitflags = "1.2.1"
 glui = { path = "../glui" }
+glui_proc = { path = "../glui_proc" }
+gl = "*"
+rand = "*"
+downcast-rs = "*"
