@@ -5,6 +5,7 @@ extern crate libc;
 use std::ffi::CString;
 
 use data::*;
+use glui::tools::mesh::{Mesh, MeshFace};
 use postprocess::aiPostProcessSteps;
 
 mod raw_assimp {
@@ -49,4 +50,123 @@ pub fn aiReleaseImport(pScene: *const aiScene) {
     unsafe {
         raw_assimp::aiReleaseImport(pScene);
     }
+}
+
+pub fn aiImportFileToMesh(file: &str) -> Option<Mesh> {
+    let mut pts = vec![];
+    let mut tpt = vec![];
+    let mut faces = vec![];
+    let mut normals = vec![];
+    let ptr = aiImportFile(
+        file,
+        aiPostProcessSteps::Triangulate
+            | aiPostProcessSteps::GenSmoothNormals
+            | aiPostProcessSteps::GenUVCoords
+            | aiPostProcessSteps::FlipUVs,
+    );
+    if ptr.is_null() {
+        return None;
+    }
+    unsafe {
+        let mesh_count = (*ptr).mNumMeshes as usize;
+        // println!("Meshes: {}", mesh_count);
+
+        let mut ind_base = 0;
+
+        for j in 0..mesh_count {
+            let mesh = &*(*(*ptr).mMeshes.add(j));
+            let vertex_count = mesh.mNumVertices as usize;
+            let face_count = mesh.mNumFaces as usize;
+
+            // println!("Vertices of mesh: {}", vertex_count);
+
+            for i in 0..vertex_count {
+                pts.push(*mesh.mVertices.add(i));
+                normals.push(*mesh.mNormals.add(i));
+                tpt.push((*mesh.mTextureCoords[0].add(i)).xy())
+            }
+
+            for i in 0..face_count {
+                let face = &*mesh.mFaces.add(i);
+                let a = *face.mIndices.add(0) + ind_base;
+                let b = *face.mIndices.add(1) + ind_base;
+                let c = *face.mIndices.add(2) + ind_base;
+                faces.push(MeshFace::new(a, b, c));
+            }
+
+            ind_base += vertex_count as u32;
+        }
+    }
+    aiReleaseImport(ptr);
+
+    Some(Mesh {
+        points: pts,
+        normals: Some(normals),
+        faces,
+        uvcoords: Some(tpt),
+    })
+}
+
+pub fn aiImportFileToMeshes(file: &str) -> Option<Vec<Mesh>> {
+    let ptr = aiImportFile(
+        file,
+        aiPostProcessSteps::Triangulate
+            | aiPostProcessSteps::GenSmoothNormals
+            | aiPostProcessSteps::GenUVCoords,
+    );
+    if ptr.is_null() {
+        return None;
+    }
+    let mut meshes;
+
+    unsafe {
+        let mesh_count = (*ptr).mNumMeshes as usize;
+        // println!("Meshes: {}", mesh_count);
+        meshes = Vec::with_capacity(mesh_count);
+
+        for j in 0..mesh_count {
+            let mesh = &*(*(*ptr).mMeshes.add(j));
+            let vertex_count = mesh.mNumVertices as usize;
+            let face_count = mesh.mNumFaces as usize;
+
+            // println!("vc: {}, fc: {}", vertex_count, face_count);
+
+            let mut uvs = vec![];
+            let mut pts = vec![];
+            let mut faces = vec![];
+            let mut normals = vec![];
+
+            // println!("Vertices of mesh: {}", vertex_count);
+
+            for i in 0..vertex_count {
+                pts.push(*mesh.mVertices.add(i));
+                normals.push(*mesh.mNormals.add(i));
+                uvs.push((*mesh.mTextureCoords[0].add(i)).xy());
+            }
+
+            let mut mn = 10000000;
+            let mut mx = 0;
+
+            for i in 0..face_count {
+                let face = &*mesh.mFaces.add(i);
+                let a = *face.mIndices.add(0);
+                let b = *face.mIndices.add(1);
+                let c = *face.mIndices.add(2);
+                faces.push(MeshFace::new(a, b, c));
+                mn = a.min(b.min(c.min(mn)));
+                mx = a.max(b.max(c.max(mx)));
+            }
+            // println!("face range: {}..{}", mn, mx);
+
+            meshes.push(Mesh {
+                points: pts,
+                normals: Some(normals),
+                faces,
+                uvcoords: Some(uvs),
+            });
+        }
+    }
+    aiReleaseImport(ptr);
+
+    Some(meshes)
 }
