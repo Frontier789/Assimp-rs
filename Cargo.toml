@@ -13,8 +13,8 @@ path = "src/bin.rs"
 [dependencies]
 libc = "0.2.0"
 bitflags = "1.2.1"
-glui = { path = "../glui" }
-glui_proc = { path = "../glui_proc" }
+glui = { git = "https://github.com/Frontier789/glui" }
+glui_proc = { git = "https://github.com/Frontier789/glui_proc" }
 gl = "*"
 rand = "*"
 downcast-rs = "*"
